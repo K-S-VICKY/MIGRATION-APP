@@ -133,18 +133,29 @@ function DocUpload() {
 
     const payload = buildPayload(contentHtml);
     const tokenValue = API_TOKEN_PREFIX ? `${API_TOKEN_PREFIX} ${API_KEY}` : API_KEY;
+    const requestHeaders = {
+      [API_TOKEN_HEADER]: tokenValue,
+      "Content-Type": "application/json"
+    };
+
+    console.log("═══════════════════════════════════════════════════");
+    console.log("📤 DOCUMENT360 API REQUEST");
+    console.log("═══════════════════════════════════════════════════");
+    console.log("Method : POST");
+    console.log("URL    :", API_URL);
+    console.log("Headers:", JSON.stringify(requestHeaders, null, 2));
+    console.log("Payload:", JSON.stringify({ ...payload, content: payload.content?.substring(0, 200) + "..." }, null, 2));
+    console.log("───────────────────────────────────────────────────");
 
     try {
-      const response = await axios.post(
-        API_URL,
-        payload,
-        {
-          headers: {
-            [API_TOKEN_HEADER]: tokenValue,
-            "Content-Type": "application/json"
-          }
-        }
-      );
+      const response = await axios.post(API_URL, payload, { headers: requestHeaders });
+
+      console.log("═══════════════════════════════════════════════════");
+      console.log("✅ DOCUMENT360 API RESPONSE — SUCCESS");
+      console.log("═══════════════════════════════════════════════════");
+      console.log("Status :", response.status, response.statusText);
+      console.log("Data   :", JSON.stringify(response.data, null, 2));
+      console.log("═══════════════════════════════════════════════════");
 
       setSaveStatus("success");
 
@@ -159,7 +170,14 @@ function DocUpload() {
         setApiMessage(successMsg);
       }
     } catch (error) {
-      console.error("Upload failed:", error);
+      console.log("═══════════════════════════════════════════════════");
+      console.error("❌ DOCUMENT360 API RESPONSE — FAILED");
+      console.log("═══════════════════════════════════════════════════");
+      console.error("Status :", error?.response?.status, error?.response?.statusText);
+      console.error("Data   :", JSON.stringify(error?.response?.data, null, 2));
+      console.error("Message:", error?.message);
+      console.log("═══════════════════════════════════════════════════");
+
       setSaveStatus("error");
 
       const apiErrorMessage =
